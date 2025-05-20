@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="cart.css">
+</head>
+<body>
+
+  <div class="cart">
+    <button class="close-cart-button">x</button>
+    <div id="cart-icon">🛒(0)</div>
+    <h1>Cart</h1>
+    <div class="cart-container">
+    <ul id="cart-list"></ul>
+    <!-- Cart items will be generated dynamically -->
+    </div>
+    <div class="cart-summary">
+    <p>Total: &#8358;<span id="cart-total">0</span></p>
+    <button class="checkout-button">Checkout</button>
+  </div>
+  </div>
+  <script>
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const cartList = document.getElementById('cart-list');
+
+    cart.forEach(product => {
+      const listItem = document.createElement('li');
+        listItem.textContent = `${product.name} x ${product.quantity} = ${product.price * product.quantity}`;
+        cartList.appendChild(listItem);
+      });
+
+      document.addEventListener('DOMContentLoaded', function(){
+        updateCartIconDisplay();
+        if (window.location.pathname.includes('/cart.html')){
+          displayCartItems();
+
+      document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('update-quantity')) {
+          const productId = event.target.dataset.productId;
+          const quantityInput = document.querySelector(`input[data-product-id="${productId}"]`);
+          const newQuantity = parseInt(quantityInput.value); 
+
+          updateQuantity(productId, newQuantity);
+        } else if (event.target.classList.contains('remove-item')) {
+            const productId = event.target.dataset.productId;
+
+          removeItem(productId);
+              }
+            });
+          }
+        });
+
+      function displayCartItems(){
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const cartList = document.getElementById('cart-list');
+          cartList.innerHTML = '';
+          cart.forEach(product => {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = 
+            `<span>${product.name}</span>
+             <span> Price: ${product.price}</span>
+             <input type="number" value="${product.quantity}" data-product-id="${product.id}" class="quantity-input">
+             <span>Total: ${product.price * product.quantity}</span>
+             <button class="update-quantity" data-product-id="${product.id}" style="display:none;">Update</button>
+             <button class="remove-item" data-product-id="${product.id}">Remove</button>`;
+             cartList.appendChild(listItem);
+          });
+          updateTotalPrice();
+      }
+      function updateQuantity(productId, newQuantity){
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const product = cart.find(item => item.id == productId);
+        if (product){
+          product.quantity = newQuantity;
+          localStorage.setItem('cart', JSON.stringify(cart));
+          displayCartItems();
+          updateTotalPrice();
+          updateCartIconDisplay();
+        }
+      }
+      function removeItem(productId) {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const newCart = cart.filter(item => item.id != productId);
+        localStorage.setItem('cart', JSON.stringify(newCart));
+        displayCartItems();
+        updateTotalPrice();
+        updateCartIconDisplay();
+      }
+      function updateTotalPrice() {
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+        const totalPrice = cart.reduce((acc, product) => acc + product.price * product.quantity, 0);
+        document.getElementById('cart-total').textContent = totalPrice.toFixed(2);
+      }
+      document.addEventListener('focusin', function(event){
+        if (event.target.classList.contains('quantity-input')){
+          const updateButton = event.target.nextElementSibling.nextElementSibling;
+      updateButton.style.display='inline-block';
+        }
+      })
+      document.addEventListener('input', function(event){
+        if (event.target.classList.contains('quantity-input')){
+          const updateButton = event.target.nextElementSibling.nextElementSibling;
+          updateButton.style.display='inline-block';
+        }
+      })
+      document.addEventListener('click', function(event){
+        if (event.target.classList.contains('update-quantity')){
+          event.target.style.display='none';
+        }
+      });
+      document.addEventListener('click', function(event) {
+        if (event.target.classList.contains('close-cart-button')) {
+        window.history.back(); // goes back to previous page
+        // or 
+        // window.location.href = 'index.html'; // redirects to index.html
+          // or you can use the following code to redirect to a specific URL:
+          // window.location.href = '/path/to/your/page.html';
+          // or you can use the following code to reload the current page:
+          // location.reload();
+          // or
+          // window.location.reload(true);
+          // or you can use the following code to refresh the current page:
+          // document.querySelector('.cart').style.display = 'none';
+        }
+      });
+
+  </script>
+  <script src="cart.js"></script>
+</body>
+</html>
